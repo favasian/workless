@@ -8,7 +8,7 @@ module Delayed
 
         extend Delayed::Workless::Scaler::HerokuClient
 
-        def self.up
+        def self.up(queue=nil)
           client.put_workers(ENV['APP_NAME'], 1) if self.workers == 0
         end
 

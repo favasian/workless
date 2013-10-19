@@ -6,8 +6,12 @@ module Delayed
       class HerokuCedar < Base
         extend Delayed::Workless::Scaler::HerokuClient
 
-        def self.up
-          client.post_ps_scale(ENV['APP_NAME'], 'worker', self.workers_needed) if self.workers_needed > self.min_workers and self.workers < self.workers_needed
+        def self.up(queue=nil)
+          if queue == "boomerang"
+            client.post_ps_scale(ENV['APP_NAME'], 'worker', self.workers + 1)
+          else
+            client.post_ps_scale(ENV['APP_NAME'], 'worker', self.workers_needed) if self.workers_needed > self.min_workers and self.workers < self.workers_needed
+          end
         end
 
         def self.down

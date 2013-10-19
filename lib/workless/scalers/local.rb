@@ -13,7 +13,7 @@ module Delayed
           end
         end
 
-        def self.up
+        def self.up(queue=nil)
           if self.workers == 0
             Rush::Box.new[Rails.root].bash("#{executable_prefix}/delayed_job start -i workless", :background => true)
             sleep 1
