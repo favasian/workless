@@ -4,7 +4,7 @@ module Delayed
 
       class Null < Base
       
-        def self.up(queue=nil)
+        def self.up
         end
 
         def self.down

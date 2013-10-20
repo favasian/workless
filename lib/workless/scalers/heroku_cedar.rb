@@ -6,16 +6,18 @@ module Delayed
       class HerokuCedar < Base
         extend Delayed::Workless::Scaler::HerokuClient
 
-        def self.up(queue=nil)
-          if queue == "boomerang"
-            client.post_ps_scale(ENV['APP_NAME'], 'worker', self.workers + 1)
-          else
-            client.post_ps_scale(ENV['APP_NAME'], 'worker', self.workers_needed) if self.workers_needed > self.min_workers and self.workers < self.workers_needed
-          end
+        def self.up
+          client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed) if self.all_workers_needed > self.min_workers and self.workers < self.all_workers_needed
         end
 
         def self.down
-          client.post_ps_scale(ENV['APP_NAME'], 'worker', self.min_workers) unless self.jobs.count > 0 or self.workers == self.min_workers
+          if self.workers > self.all_workers_needed
+            if self.all_workers_needed >= self.min_workers 
+              client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed)
+            else
+              client.post_ps_scale(ENV['APP_NAME'], 'worker', self.min_workers)
+            end
+          end 
         end
 
         def self.workers
@@ -30,6 +32,14 @@ module Delayed
         #
         def self.workers_needed
           [[(self.jobs.count.to_f / self.workers_ratio).ceil, self.max_workers].min, self.min_workers].max
+        end
+
+        def self.boomerang_workers_needed
+          self.jobs("boomerang").count
+        end
+
+        def self.all_workers_needed
+          self.workers_needed + self.boomerang_workers_needed
         end
 
         def self.workers_ratio
