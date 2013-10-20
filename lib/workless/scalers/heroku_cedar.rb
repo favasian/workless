@@ -11,13 +11,13 @@ module Delayed
         end
 
         def self.down
-          if self.workers > self.all_workers_needed
+          #if self.workers > self.all_workers_needed
             if self.all_workers_needed >= self.min_workers 
               client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed)
             else
               client.post_ps_scale(ENV['APP_NAME'], 'worker', self.min_workers)
             end
-          end 
+          #end 
         end
 
         def self.workers
