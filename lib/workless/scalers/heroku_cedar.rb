@@ -7,13 +7,13 @@ module Delayed
         extend Delayed::Workless::Scaler::HerokuClient
 
         def self.up
-          client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed)# if self.all_workers_needed > self.min_workers and self.workers < self.all_workers_needed
+          client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed) if self.all_workers_needed > self.min_workers and self.workers < self.all_workers_needed
         end
 
         def self.down
           #if self.workers > self.all_workers_needed
           #  if self.all_workers_needed >= self.min_workers 
-              client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed)
+              client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed) if self.workers > self.all_workers_needed
           #  else
           #    client.post_ps_scale(ENV['APP_NAME'], 'worker', self.min_workers)
           #  end
