@@ -8,14 +8,16 @@ module Delayed
 
         def self.up
           puts "up call"
+          puts "#{self.workers} < #{self.all_workers_needed}"
           if self.all_workers_needed > self.min_workers and self.workers < self.all_workers_needed
-            puts "scaling down to #{self.all_workers_needed}"
+            puts "scaling up to #{self.all_workers_needed}"
             client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed) 
           end
         end
 
         def self.down
           puts "down call" 
+          puts "#{self.workers} > #{self.all_workers_needed}"
           if self.workers > self.all_workers_needed
             puts "scaling down to #{self.all_workers_needed}"
             client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed) 
@@ -33,11 +35,14 @@ module Delayed
         # ENV['WORKLESS_MIN_WORKERS']
         #
         def self.workers_needed
-          [[(self.jobs.count.to_f / self.workers_ratio).ceil, self.max_workers].min, self.min_workers].max
+          w = [[(self.jobs.count.to_f / self.workers_ratio).ceil, self.max_workers].min, self.min_workers].max
+          puts "workers needed = #{w}"
+          w
         end
 
         def self.boomerang_workers_needed
-          self.jobs("boomerang").count
+          w = self.jobs("boomerang").count
+          puts "boomerang workers needed = #{w}"
         end
 
         def self.all_workers_needed
