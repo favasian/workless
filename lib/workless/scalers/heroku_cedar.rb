@@ -43,6 +43,7 @@ module Delayed
         def self.boomerang_workers_needed
           w = self.jobs("boomerang").count
           puts "boomerang workers needed = #{w}"
+          w
         end
 
         def self.all_workers_needed
