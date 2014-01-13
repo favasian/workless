@@ -18,7 +18,7 @@ module Delayed
         def self.down
           puts "down call" 
           puts "#{self.workers} > #{self.all_workers_needed}"
-          if self.workers > self.all_workers_needed #and self.boomerang_workers_needed == 0
+          if self.workers > self.all_workers_needed and self.boomerang_workers_needed == 0
             puts "scaling down to #{self.all_workers_needed}"
             client.post_ps_scale(ENV['APP_NAME'], 'worker', self.all_workers_needed) 
           end
